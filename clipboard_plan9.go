@@ -12,6 +12,8 @@ import (
 	"os"
 )
 
+func Init() {}
+
 func readAll() (string, error) {
 	f, err := os.Open("/dev/snarf")
 	if err != nil {

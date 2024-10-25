@@ -46,8 +46,19 @@ type commandInfo struct {
 	unsupported bool
 }
 
-func findClipboardUtility() commandInfo {
-	c := commandInfo{}
+var cmd *commandInfo
+
+func Init() {
+	cmd = findClipboardUtility()
+}
+
+func findClipboardUtility() *commandInfo {
+	c := cmd
+	if c != nil {
+		return c
+	}
+	c = &commandInfo{}
+	cmd = c
 
 	if os.Getenv("WAYLAND_DISPLAY") != "" {
 		c.pasteCmdArgs = wlpasteArgs
@@ -84,15 +95,16 @@ func findClipboardUtility() commandInfo {
 			return c
 		}
 	}
+	c.unsupported = true
 
-	return commandInfo{unsupported: true}
+	return c
 }
 
-func getPasteCommand(c commandInfo) *exec.Cmd {
+func getPasteCommand(c *commandInfo) *exec.Cmd {
 	return exec.Command(c.pasteCmdArgs[0], c.pasteCmdArgs[1:]...)
 }
 
-func getCopyCommand(c commandInfo) *exec.Cmd {
+func getCopyCommand(c *commandInfo) *exec.Cmd {
 	return exec.Command(c.copyCmdArgs[0], c.copyCmdArgs[1:]...)
 }
 

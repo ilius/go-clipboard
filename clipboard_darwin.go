@@ -16,6 +16,8 @@ var (
 	copyCmdArgs  = "pbcopy"
 )
 
+func Init() {}
+
 func getPasteCommand() *exec.Cmd {
 	return exec.Command(pasteCmdArgs)
 }

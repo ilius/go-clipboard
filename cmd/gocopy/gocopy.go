@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/atotto/clipboard"
+	"github.com/ilius/go-clipboard"
 )
 
 func main() {

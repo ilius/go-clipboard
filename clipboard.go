@@ -18,3 +18,8 @@ func WriteAll(text string) error {
 // Unsupported might be set true during clipboard init, to help callers decide
 // whether or not to offer clipboard options.
 var Unsupported bool
+
+// Optional: scan / discover executable files to use in the future
+func Init() {
+	initPlatform()
+}

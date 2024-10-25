@@ -48,7 +48,7 @@ type commandInfo struct {
 
 var cmd *commandInfo
 
-func Init() {
+func initPlatform() {
 	cmd = findClipboardUtility()
 }
 

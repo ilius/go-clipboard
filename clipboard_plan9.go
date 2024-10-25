@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-func Init() {}
+func initPlatform() {}
 
 func readAll() (string, error) {
 	f, err := os.Open("/dev/snarf")

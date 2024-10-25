@@ -26,20 +26,20 @@ const (
 )
 
 var (
-	xselPasteArgs = []string{xsel, "--output", "--clipboard"}
-	xselCopyArgs  = []string{xsel, "--input", "--clipboard"}
+	xselPasteArgs = []string{"--output", "--clipboard"}
+	xselCopyArgs  = []string{"--input", "--clipboard"}
 
-	xclipPasteArgs = []string{xclip, "-out", "-selection", "clipboard"}
-	xclipCopyArgs  = []string{xclip, "-in", "-selection", "clipboard"}
+	xclipPasteArgs = []string{"-out", "-selection", "clipboard"}
+	xclipCopyArgs  = []string{"-in", "-selection", "clipboard"}
 
-	powershellExePasteArgs = []string{powershellExe, "Get-Clipboard"}
-	clipExeCopyArgs        = []string{clipExe}
+	powershellExePasteArgs = []string{"Get-Clipboard"}
+	clipExeCopyArgs        = []string{}
 
-	wlpasteArgs = []string{wlpaste, "--no-newline"}
-	wlcopyArgs  = []string{wlcopy}
+	wlpasteArgs = []string{"--no-newline"}
+	wlcopyArgs  = []string{}
 
-	termuxPasteArgs = []string{termuxClipboardGet}
-	termuxCopyArgs  = []string{termuxClipboardSet}
+	termuxPasteArgs = []string{}
+	termuxCopyArgs  = []string{}
 
 	missingCommands = errors.New("No clipboard utilities available. Please install xsel, xclip, wl-clipboard or Termux:API add-on for termux-clipboard-get/set.")
 )
@@ -69,36 +69,33 @@ func findClipboardUtility() commandInfo {
 		}
 	}
 
-	c.pasteCmdArgs = xclipPasteArgs
-	c.copyCmdArgs = xclipCopyArgs
-
-	if p, err := exec.LookPath(xclip); err == nil {
-		slog.Info("found xclip executable", "path", p)
+	if xclipPath, err := exec.LookPath(xclip); err == nil {
+		slog.Info("found xclip executable", "path", xclipPath)
+		c.pasteCmdArgs = append([]string{xclipPath}, xclipPasteArgs...)
+		c.copyCmdArgs = append([]string{xclipPath}, xclipCopyArgs...)
 		return c
 	}
 
-	c.pasteCmdArgs = xselPasteArgs
-	c.copyCmdArgs = xselCopyArgs
-
-	if p, err := exec.LookPath(xsel); err == nil {
-		slog.Info("found xsel executable", "path", p)
+	if xselPath, err := exec.LookPath(xsel); err == nil {
+		slog.Info("found xsel executable", "path", xselPath)
+		c.pasteCmdArgs = append([]string{xselPath}, xselPasteArgs...)
+		c.copyCmdArgs = append([]string{xselPath}, xselCopyArgs...)
 		return c
 	}
 
-	c.pasteCmdArgs = termuxPasteArgs
-	c.copyCmdArgs = termuxCopyArgs
-
-	if _, err := exec.LookPath(termuxClipboardSet); err == nil {
+	if p, err := exec.LookPath(termuxClipboardSet); err == nil {
+		slog.Info("found termuxClipboardSet executable", "path", p)
+		c.pasteCmdArgs = append([]string{p}, termuxPasteArgs...)
+		c.copyCmdArgs = append([]string{p}, termuxCopyArgs...)
 		if _, err := exec.LookPath(termuxClipboardGet); err == nil {
 			return c
 		}
 	}
 
-	c.pasteCmdArgs = powershellExePasteArgs
-	c.copyCmdArgs = clipExeCopyArgs
+	c.pasteCmdArgs = append([]string{powershellExe}, powershellExePasteArgs...)
 	c.trimDOS = true
-
 	if _, err := exec.LookPath(clipExe); err == nil {
+		c.copyCmdArgs = append([]string{clipExe}, clipExeCopyArgs...)
 		if _, err := exec.LookPath(powershellExe); err == nil {
 			return c
 		}

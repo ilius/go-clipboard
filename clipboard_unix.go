@@ -9,6 +9,7 @@ package clipboard
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 	"os/exec"
 )
@@ -59,8 +60,10 @@ func findClipboardUtility() commandInfo {
 		c.pasteCmdArgs = wlpasteArgs
 		c.copyCmdArgs = wlcopyArgs
 
-		if _, err := exec.LookPath(wlcopy); err == nil {
-			if _, err := exec.LookPath(wlpaste); err == nil {
+		if p, err := exec.LookPath(wlcopy); err == nil {
+			slog.Info("found wlcopy executable", "path", p)
+			if p, err := exec.LookPath(wlpaste); err == nil {
+				slog.Info("found wlpaste executable", "path", p)
 				return c
 			}
 		}
@@ -69,14 +72,16 @@ func findClipboardUtility() commandInfo {
 	c.pasteCmdArgs = xclipPasteArgs
 	c.copyCmdArgs = xclipCopyArgs
 
-	if _, err := exec.LookPath(xclip); err == nil {
+	if p, err := exec.LookPath(xclip); err == nil {
+		slog.Info("found xclip executable", "path", p)
 		return c
 	}
 
 	c.pasteCmdArgs = xselPasteArgs
 	c.copyCmdArgs = xselCopyArgs
 
-	if _, err := exec.LookPath(xsel); err == nil {
+	if p, err := exec.LookPath(xsel); err == nil {
+		slog.Info("found xsel executable", "path", p)
 		return c
 	}
 

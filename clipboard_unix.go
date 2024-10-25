@@ -17,8 +17,6 @@ import (
 const (
 	xsel               = "xsel"
 	xclip              = "xclip"
-	powershellExe      = "powershell.exe"
-	clipExe            = "clip.exe"
 	wlcopy             = "wl-copy"
 	wlpaste            = "wl-paste"
 	termuxClipboardGet = "termux-clipboard-get"
@@ -32,9 +30,6 @@ var (
 	xclipPasteArgs = []string{"-out", "-selection", "clipboard"}
 	xclipCopyArgs  = []string{"-in", "-selection", "clipboard"}
 
-	powershellExePasteArgs = []string{"Get-Clipboard"}
-	clipExeCopyArgs        = []string{}
-
 	wlpasteArgs = []string{"--no-newline"}
 	wlcopyArgs  = []string{}
 
@@ -45,8 +40,6 @@ var (
 )
 
 type commandInfo struct {
-	trimDOS bool
-
 	pasteCmdArgs []string
 	copyCmdArgs  []string
 
@@ -92,15 +85,6 @@ func findClipboardUtility() commandInfo {
 		}
 	}
 
-	c.pasteCmdArgs = append([]string{powershellExe}, powershellExePasteArgs...)
-	c.trimDOS = true
-	if _, err := exec.LookPath(clipExe); err == nil {
-		c.copyCmdArgs = append([]string{clipExe}, clipExeCopyArgs...)
-		if _, err := exec.LookPath(powershellExe); err == nil {
-			return c
-		}
-	}
-
 	return commandInfo{unsupported: true}
 }
 
@@ -124,9 +108,6 @@ func readAll() (string, error) {
 		return "", err
 	}
 	result := string(out)
-	if c.trimDOS && len(result) > 1 {
-		result = result[:len(result)-2]
-	}
 	return result, nil
 }
 
